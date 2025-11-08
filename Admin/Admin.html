@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Painel Admin — Sampaio Barbearia</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <!-- Tela de Login -->
+<div id="login-container" class="login-container">
+  <div class="login-box">
+    <h2>🔒 Painel Administrativo</h2>
+    <p>Digite a senha para acessar:</p>
+    <input type="password" id="senha" placeholder="Senha de acesso" />
+    <button id="btn-login" class="btn primary">Entrar</button>
+    <button id="btn-area-cliente" class="btn">Ir para Área do Cliente</button>
+    <p id="erro" class="erro oculto">Senha incorreta!</p>
+  </div>
+</div>
+  <!-- Painel -->
+  <div id="painel" class="oculto">
+    <header class="admin-header">
+      <h1>📋 Painel de Agendamentos</h1>
+      <div class="botoes-admin">
+        <button id="btn-limpar" class="btn danger">Excluir Tudo</button>
+        <button id="btn-sair" class="btn">Sair</button>
+      </div>
+    </header>
+    <main class="container">
+  <div class="filtro-container">
+    <input
+      type="text"
+      id="filtro"
+      placeholder="🔍 Buscar por nome, serviço ou data..."
+      class="filtro-input"
+    />
+  </div>
+
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Serviço</th>
+        <th>Responsável</th>
+        <th>Data</th>
+        <th>Hora</th>
+        <th>Criado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista-agendamentos"></tbody>
+  </table>
+</main>
+    <footer class="admin-footer">
+      <p>© <span id="ano"></span> Sampaio Barbearia — Painel Administrativo</p>
+    </footer>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
