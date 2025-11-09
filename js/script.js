@@ -1,4 +1,4 @@
-// ==== 🔹 Conexão Firebase ====
+// ==== 🔹 Importação Firebase ====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -12,9 +12,11 @@ const firebaseConfig = {
   appId: "1:984419102837:web:58e10be6f570f66438883c"
 };
 
+// ==== 🔹 Inicializa Firebase ====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// ==== 🔹 Script Principal ====
 document.addEventListener("DOMContentLoaded", () => {
   const btnAgendar = document.getElementById("btn-agendar");
   const modal = document.getElementById("modal");
@@ -52,21 +54,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const horarios = [];
     for (let h = 9; h <= 18; h++) {
       for (let m = 0; m < 60; m++) {
-        if (h === 18 && m > 0) break; // termina exatamente às 18:00
-        const horaFormatada = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-        horarios.push(horaFormatada);
+        if (h === 18 && m > 0) break;
+        horarios.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
       }
     }
     return horarios;
   }
 
-  // === Recuperar agendamentos ===
-  function obterAgendamentos() {
-    return JSON.parse(localStorage.getItem("agendamentos")) || [];
+  // === Buscar agendamentos do Firestore ===
+  async function obterAgendamentos() {
+    const snapshot = await getDocs(collection(db, "agendamentos"));
+    return snapshot.docs.map(doc => doc.data());
   }
 
   // === Atualizar horários disponíveis ===
-  function atualizarHorarios() {
+  async function atualizarHorarios() {
     horaSelect.innerHTML = "";
 
     const servicoSelecionado = servicoSelect.value;
@@ -76,12 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!servicoSelecionado || !responsavelSelecionado || !dataSelecionada) return;
 
     const duracao = duracoes[servicoSelecionado] || 0;
-    if (!duracao) return;
-
     const horarios = gerarHorarios();
-    const agendamentos = obterAgendamentos();
+    const agendamentos = await obterAgendamentos();
 
-    // Filtra os horários já ocupados para o mesmo responsável e data
+    // Filtra horários já ocupados para o mesmo responsável e data
     const ocupados = agendamentos
       .filter(a => a.data === dataSelecionada && a.responsavel === responsavelSelecionado)
       .map(a => ({ hora: a.hora, duracao: parseInt(a.duracao) }));
@@ -103,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Exibe na lista de horários
     if (disponiveis.length === 0) {
       const opt = document.createElement("option");
       opt.textContent = "Sem horários disponíveis";
@@ -124,8 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
   responsavelSelect.addEventListener("change", atualizarHorarios);
   dataInput.addEventListener("change", atualizarHorarios);
 
-  // === Salvar agendamento e enviar via WhatsApp ===
-  form.addEventListener("submit", (e) => {
+  // === Salvar agendamento (Firestore + WhatsApp) ===
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const nome = document.getElementById("nome").value;
@@ -152,18 +151,22 @@ document.addEventListener("DOMContentLoaded", () => {
       criadoEm: new Date().toLocaleString("pt-BR")
     };
 
-    const agendamentos = obterAgendamentos();
-    agendamentos.push(agendamento);
-    localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
+    try {
+      // Salva no Firestore
+      await addDoc(collection(db, "agendamentos"), agendamento);
 
-    // Enviar WhatsApp
-    const msg = `Olá! Gostaria de agendar um horário:%0A%0A👤 *Nome:* ${nome}%0A📞 *Telefone:* ${telefone}%0A💈 *Serviço:* ${servico}%0A💇‍♂️ *Responsável:* ${responsavel}%0A📅 *Data:* ${data}%0A🕒 *Hora:* ${hora}`;
-    const link = `https://wa.me/5511933199127?text=${msg}`;
-    window.open(link, "_blank");
+      // Enviar WhatsApp
+      const msg = `Olá! Gostaria de agendar um horário:%0A%0A👤 *Nome:* ${nome}%0A📞 *Telefone:* ${telefone}%0A💈 *Serviço:* ${servico}%0A💇‍♂️ *Responsável:* ${responsavel}%0A📅 *Data:* ${data}%0A🕒 *Hora:* ${hora}`;
+      const link = `https://wa.me/5511933199127?text=${msg}`;
+      window.open(link, "_blank");
 
-    alert("✅ Agendamento registrado com sucesso!");
-    form.reset();
-    horaSelect.innerHTML = "";
+      alert("✅ Agendamento enviado com sucesso!");
+      form.reset();
+      horaSelect.innerHTML = "";
+      modal.classList.remove("ativo");
+    } catch (error) {
+      console.error("Erro ao salvar agendamento:", error);
+      alert("❌ Erro ao enviar o agendamento. Tente novamente.");
+    }
   });
 });
-
