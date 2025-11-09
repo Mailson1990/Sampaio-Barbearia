@@ -1,4 +1,4 @@
-// ==== 🔹 Conexão Firebase ====
+// ==== 🔹 Importação Firebase ====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -12,9 +12,11 @@ const firebaseConfig = {
   appId: "1:984419102837:web:58e10be6f570f66438883c"
 };
 
+// ==== 🔹 Inicializa Firebase ====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// ==== 🔹 Script Principal ====
 document.addEventListener("DOMContentLoaded", () => {
   const btnAgendar = document.getElementById("btn-agendar");
   const modal = document.getElementById("modal");
@@ -166,4 +168,3 @@ document.addEventListener("DOMContentLoaded", () => {
     horaSelect.innerHTML = "";
   });
 });
-
