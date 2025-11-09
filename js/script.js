@@ -1,19 +1,3 @@
-// ==== 🔹 Conexão Firebase ====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC5Ax2KcfpB4--rnLdBvdTgwE_GJgCCk0A",
-  authDomain: "sampaio-barbearia.firebaseapp.com",
-  projectId: "sampaio-barbearia",
-  storageBucket: "sampaio-barbearia.firebasestorage.app",
-  messagingSenderId: "984419102837",
-  appId: "1:984419102837:web:58e10be6f570f66438883c"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 document.addEventListener("DOMContentLoaded", () => {
   // === Seletores ===
   const btnAgendar = document.getElementById("btn-agendar");
@@ -25,6 +9,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const horaSelect = document.getElementById("hora");
   const dataInput = document.getElementById("data");
   const servicoSelect = document.getElementById("servico");
+
+  // Checa se os elementos existem
+  if (!btnAgendar || !modal || !fecharModal || !btnCancel) {
+    console.error("Algum elemento do modal não foi encontrado no DOM. Verifique os IDs.");
+    return;
+  }
+
+  // === Modal ===
+  function abrirModal() {
+    modal.classList.add("ativo");
+  }
+
+  function fecharModalFunc() {
+    modal.classList.remove("ativo");
+  }
+
+  btnAgendar.addEventListener("click", abrirModal);
+  fecharModal.addEventListener("click", fecharModalFunc);
+  btnCancel.addEventListener("click", fecharModalFunc);
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) fecharModalFunc();
+  });
 
   // === Durações dos serviços (minutos) ===
   const duracoes = {
@@ -38,12 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "Progressiva": 60,
     "Sobrancelha": 5
   };
-
-  // === Modal ===
-  btnAgendar.addEventListener("click", () => modal.classList.add("ativo"));
-  fecharModal.addEventListener("click", () => modal.classList.remove("ativo"));
-  btnCancel.addEventListener("click", () => modal.classList.remove("ativo"));
-  window.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("ativo"); });
 
   // === Gera horários minuto a minuto ===
   function gerarHorarios() {
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await addDoc(collection(db, "agendamentos"), agendamento);
       alert("✅ Agendamento salvo!");
-      modal.classList.remove("ativo");
+      fecharModalFunc();
       form.reset();
       horaSelect.innerHTML = "";
     } catch (err) {
@@ -153,5 +153,5 @@ document.addEventListener("DOMContentLoaded", () => {
     const link = `https://wa.me/5511933199127?text=${msg}`;
     window.open(link, "_blank");
   });
-
 });
+
