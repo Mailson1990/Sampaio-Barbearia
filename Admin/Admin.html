@@ -57,6 +57,72 @@
       <p>© <span id="ano"></span> Sampaio Barbearia — Painel Administrativo</p>
     </footer>
   </div>
+<script type="module">
+// ======= IMPORTAR FIREBASE =======
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// ======= CONFIGURAÇÃO FIREBASE =======
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY_AQUI",
+  authDomain: "SEU_DOMINIO.firebaseapp.com",
+  projectId: "sampaio-barbearia",
+  storageBucket: "sampaio-barbearia.appspot.com",
+  messagingSenderId: "SEU_ID",
+  appId: "SEU_APP_ID"
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ======= ELEMENTOS =======
+const lista = document.getElementById("lista-agendamentos");
+const btnAtualizar = document.getElementById("btn-atualizar");
+
+// ======= CARREGAR AGENDAMENTOS =======
+async function carregarAgendamentos() {
+  lista.innerHTML = "<li>Carregando...</li>";
+
+  const querySnapshot = await getDocs(collection(db, "agendamentos"));
+  lista.innerHTML = "";
+
+  if (querySnapshot.empty) {
+    lista.innerHTML = "<li>Nenhum agendamento encontrado.</li>";
+    return;
+  }
+
+  querySnapshot.forEach((docSnap) => {
+    const ag = docSnap.data();
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${ag.nome}</strong> - ${ag.servico}<br>
+      Responsável: ${ag.responsavel}<br>
+      📅 ${ag.data} ⏰ ${ag.hora}<br>
+      <button class="btn-excluir" data-id="${docSnap.id}">Excluir</button>
+    `;
+    lista.appendChild(li);
+  });
+
+  // Eventos de exclusão
+  document.querySelectorAll(".btn-excluir").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-id");
+      if (confirm("Tem certeza que deseja excluir este agendamento?")) {
+        await deleteDoc(doc(db, "agendamentos", id));
+        alert("Agendamento excluído!");
+        carregarAgendamentos();
+      }
+    });
+  });
+}
+
+// ======= BOTÃO ATUALIZAR =======
+btnAtualizar.addEventListener("click", carregarAgendamentos);
+
+// ======= INICIALIZA =======
+carregarAgendamentos();
+</script>
 
   <script src="js/admin.js"></script>
 </body>

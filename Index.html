@@ -129,34 +129,86 @@
     <p>&copy; <span id="ano"></span> Sampaio Barbearia — Todos os direitos reservados.</p>
   </footer>
 
-  <!-- Scripts -->
-  <script>
-    // Botão Admin redireciona para o painel
-    document.getElementById("btn-admin").addEventListener("click", () => {
-      window.location.href = "/Admin/admin.html";
-    });
+ <script type="module">
+// ======= IMPORTAR FIREBASE =======
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // Mostrar a duração do serviço dinamicamente
-    const servico = document.getElementById("servico");
-    const duracao = document.getElementById("duracao");
+// ======= CONFIGURAÇÃO FIREBASE =======
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY_AQUI",
+  authDomain: "SEU_DOMINIO.firebaseapp.com",
+  projectId: "sampaio-barbearia",
+  storageBucket: "sampaio-barbearia.appspot.com",
+  messagingSenderId: "SEU_ID",
+  appId: "SEU_APP_ID"
+};
 
-    const duracoes = {
-      "Barba": "30 minutos",
-      "Alisamento": "20 minutos",
-      "Corte": "50 minutos",
-      "Corte e Penteado": "60 minutos",
-      "Luzes": "60 minutos",
-      "Penteado": "15 minutos",
-      "Pezinho": "10 minutos",
-      "Progressiva": "60 minutos",
-      "Sobrancelha": "5 minutos"
-    };
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    servico.addEventListener("change", () => {
-      const valor = servico.value;
-      duracao.textContent = valor ? `⏱ Duração estimada: ${duracoes[valor]}` : "";
-    });
-  </script>
+// ======= ELEMENTOS =======
+const btnAgendar = document.getElementById("btn-agendar");
+const modal = document.getElementById("modal");
+const fecharModal = document.getElementById("fechar-modal");
+const btnCancel = document.getElementById("btn-cancel");
+const form = document.getElementById("form-agendamento");
+const horaSelect = document.getElementById("hora");
+const dataInput = document.getElementById("data");
+const servicoSelect = document.getElementById("servico");
+const responsavelSelect = document.getElementById("responsavel");
+
+// ======= FUNÇÃO GERAR HORÁRIOS =======
+function gerarHorarios() {
+  horaSelect.innerHTML = "";
+  for (let h = 9; h <= 18; h++) {
+    for (let m = 0; m < 60; m += 10) {
+      const hora = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+      const option = document.createElement("option");
+      option.value = hora;
+      option.textContent = hora;
+      horaSelect.appendChild(option);
+    }
+  }
+}
+gerarHorarios();
+
+// ======= ABRIR / FECHAR MODAL =======
+btnAgendar.addEventListener("click", () => modal.style.display = "flex");
+fecharModal.addEventListener("click", () => modal.style.display = "none");
+btnCancel.addEventListener("click", () => modal.style.display = "none");
+
+// ======= SALVAR NO FIREBASE =======
+async function salvarAgendamento(agendamento) {
+  try {
+    await addDoc(collection(db, "agendamentos"), agendamento);
+    alert("✅ Agendamento salvo com sucesso!");
+    modal.style.display = "none";
+    form.reset();
+  } catch (e) {
+    console.error("Erro ao salvar agendamento:", e);
+    alert("❌ Erro ao salvar agendamento.");
+  }
+}
+
+// ======= SUBMIT FORM =======
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const agendamento = {
+    nome: document.getElementById("nome").value,
+    telefone: document.getElementById("telefone").value,
+    servico: servicoSelect.value,
+    responsavel: responsavelSelect.value,
+    data: dataInput.value,
+    hora: horaSelect.value,
+    criadoEm: new Date().toISOString()
+  };
+
+  salvarAgendamento(agendamento);
+});
+</script>
 
   <script src="js/script.js"></script>
 </body>
