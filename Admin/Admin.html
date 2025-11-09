@@ -8,16 +8,17 @@
 </head>
 <body>
   <!-- Tela de Login -->
-<div id="login-container" class="login-container">
-  <div class="login-box">
-    <h2>🔒 Painel Administrativo</h2>
-    <p>Digite a senha para acessar:</p>
-    <input type="password" id="senha" placeholder="Senha de acesso" />
-    <button id="btn-login" class="btn primary">Entrar</button>
-    <button id="btn-area-cliente" class="btn">Ir para Área do Cliente</button>
-    <p id="erro" class="erro oculto">Senha incorreta!</p>
+  <div id="login-container" class="login-container">
+    <div class="login-box">
+      <h2>🔒 Painel Administrativo</h2>
+      <p>Digite a senha para acessar:</p>
+      <input type="password" id="senha" placeholder="Senha de acesso" />
+      <button id="btn-login" class="btn primary">Entrar</button>
+      <button id="btn-area-cliente" class="btn">Ir para Área do Cliente</button>
+      <p id="erro" class="erro oculto">Senha incorreta!</p>
+    </div>
   </div>
-</div>
+
   <!-- Painel -->
   <div id="painel" class="oculto">
     <header class="admin-header">
@@ -27,103 +28,39 @@
         <button id="btn-sair" class="btn">Sair</button>
       </div>
     </header>
-    <main class="container">
-  <div class="filtro-container">
-    <input
-      type="text"
-      id="filtro"
-      placeholder="🔍 Buscar por nome, serviço ou data..."
-      class="filtro-input"
-    />
-  </div>
 
-  <table id="tabela">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Telefone</th>
-        <th>Serviço</th>
-        <th>Responsável</th>
-        <th>Data</th>
-        <th>Hora</th>
-        <th>Criado em</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="lista-agendamentos"></tbody>
-  </table>
-</main>
+    <main class="container">
+      <div class="filtro-container">
+        <input
+          type="text"
+          id="filtro"
+          placeholder="🔍 Buscar por nome, serviço ou data..."
+          class="filtro-input"
+        />
+      </div>
+
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Serviço</th>
+            <th>Responsável</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista-agendamentos"></tbody>
+      </table>
+    </main>
+
     <footer class="admin-footer">
       <p>© <span id="ano"></span> Sampaio Barbearia — Painel Administrativo</p>
     </footer>
   </div>
-<script type="module">
-// ======= IMPORTAR FIREBASE =======
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-// ======= CONFIGURAÇÃO FIREBASE =======
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "SEU_DOMINIO.firebaseapp.com",
-  projectId: "sampaio-barbearia",
-  storageBucket: "sampaio-barbearia.appspot.com",
-  messagingSenderId: "SEU_ID",
-  appId: "SEU_APP_ID"
-};
-
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ======= ELEMENTOS =======
-const lista = document.getElementById("lista-agendamentos");
-const btnAtualizar = document.getElementById("btn-atualizar");
-
-// ======= CARREGAR AGENDAMENTOS =======
-async function carregarAgendamentos() {
-  lista.innerHTML = "<li>Carregando...</li>";
-
-  const querySnapshot = await getDocs(collection(db, "agendamentos"));
-  lista.innerHTML = "";
-
-  if (querySnapshot.empty) {
-    lista.innerHTML = "<li>Nenhum agendamento encontrado.</li>";
-    return;
-  }
-
-  querySnapshot.forEach((docSnap) => {
-    const ag = docSnap.data();
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${ag.nome}</strong> - ${ag.servico}<br>
-      Responsável: ${ag.responsavel}<br>
-      📅 ${ag.data} ⏰ ${ag.hora}<br>
-      <button class="btn-excluir" data-id="${docSnap.id}">Excluir</button>
-    `;
-    lista.appendChild(li);
-  });
-
-  // Eventos de exclusão
-  document.querySelectorAll(".btn-excluir").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-id");
-      if (confirm("Tem certeza que deseja excluir este agendamento?")) {
-        await deleteDoc(doc(db, "agendamentos", id));
-        alert("Agendamento excluído!");
-        carregarAgendamentos();
-      }
-    });
-  });
-}
-
-// ======= BOTÃO ATUALIZAR =======
-btnAtualizar.addEventListener("click", carregarAgendamentos);
-
-// ======= INICIALIZA =======
-carregarAgendamentos();
-</script>
-
-  <script src="js/admin.js"></script>
+  <!-- JS do Painel -->
+  <script type="module" src="js/admin.js"></script>
 </body>
 </html>

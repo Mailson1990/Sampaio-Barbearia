@@ -1,93 +1,78 @@
-/* ====== Estilo Geral ====== */
+/* ======== RESET BÁSICO ======== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
 }
 
+/* ======== BODY ======== */
 body {
-  background: #f3f3f3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
   color: #333;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
-/* ====== Tela de Login ====== */
+/* ======== BOTÕES ======== */
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.primary {
+  background-color: #1e90ff;
+  color: #fff;
+}
+
+.danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* ======== TELA DE LOGIN ======== */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #222, #555);
-  padding: 20px;
 }
 
 .login-box {
-  background: #fff;
-  padding: 40px 30px;
+  background-color: #fff;
+  padding: 30px 25px;
   border-radius: 12px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 320px;
   text-align: center;
 }
 
 .login-box h2 {
   margin-bottom: 15px;
-  color: #222;
 }
 
 .login-box p {
+  margin-bottom: 10px;
   color: #555;
-  margin-bottom: 15px;
 }
 
-.login-box input {
+.login-box input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 8px;
+  margin: 10px 0 15px 0;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.btn {
-  display: inline-block;
-  padding: 10px 18px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background: #444;
-  color: #fff;
-  transition: 0.3s;
-  font-size: 15px;
-  margin: 5px;
-}
-
-.btn:hover {
-  background: #222;
-}
-
-.btn.primary {
-  background: #1a73e8;
-}
-
-.btn.primary:hover {
-  background: #1558b0;
-}
-
-.btn.danger {
-  background: #e63946;
-}
-
-.btn.danger:hover {
-  background: #b32b34;
 }
 
 .erro {
-  color: red;
+  color: #dc3545;
+  font-size: 14px;
   margin-top: 10px;
 }
 
@@ -95,200 +80,121 @@ body {
   display: none;
 }
 
-/* ====== Painel ====== */
+/* ======== PAINEL ADMIN ======== */
+#painel {
+  padding: 20px 40px;
+}
+
+/* HEADER */
 .admin-header {
-  background: #222;
-  color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 25px;
   flex-wrap: wrap;
+  margin-bottom: 25px;
 }
 
 .admin-header h1 {
-  font-size: 1.4rem;
-  margin-bottom: 10px;
+  font-size: 1.8rem;
+  color: #1e90ff;
 }
 
-.botoes-admin {
-  display: flex;
-  gap: 10px;
+.botoes-admin button {
+  margin-left: 10px;
 }
 
-.container {
-  flex: 1;
-  padding: 20px;
-  overflow-x: auto;
-}
-
+/* FILTRO */
 .filtro-container {
   margin-bottom: 15px;
 }
 
 .filtro-input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #aaa;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-/* ====== Tabela ====== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-thead {
-  background: #1a73e8;
-  color: #fff;
-}
-
-th, td {
-  padding: 12px 10px;
-  text-align: center;
-  font-size: 15px;
-  border-bottom: 1px solid #ddd;
-}
-
-td button {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #e63946;
-  color: #fff;
-}
-
-td button:hover {
-  background: #b32b34;
-}
-
-/* ====== Rodapé ====== */
-.admin-footer {
-  text-align: center;
-  padding: 15px;
-  background: #222;
-  color: #fff;
+  border: 1px solid #ccc;
   font-size: 14px;
 }
 
-/* ====== Responsividade ====== */
-@media (max-width: 768px) {
+/* TABELA */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+thead th {
+  background-color: #1e90ff;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f8ff;
+}
+
+/* BOTÃO EXCLUIR NA TABELA */
+.btn-excluir {
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 5px;
+}
+
+/* FOOTER */
+.admin-footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* RESPONSIVO */
+@media screen and (max-width: 768px) {
+  #painel {
+    padding: 15px 20px;
+  }
+
   .admin-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .admin-header h1 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
+  .botoes-admin {
+    margin-top: 10px;
   }
 
-  table {
+  table, .filtro-input {
     font-size: 13px;
   }
-
-  th, td {
-    padding: 8px 5px;
-  }
-
-  .btn {
-    font-size: 14px;
-    padding: 8px 14px;
-  }
 }
 
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .login-box {
-    padding: 25px 20px;
+    width: 90%;
+    padding: 20px;
   }
 
-  .admin-header,
-  .botoes-admin {
-    width: 100%;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .admin-header h1 {
-    text-align: center;
-    width: 100%;
-  }
-
-  .filtro-input {
-    font-size: 14px;
-  }
-
-  table {
-    font-size: 12px;
-  }
-
-  td button {
-    padding: 5px 8px;
-    font-size: 12px;
-  }
-}
-body {
-  font-family: "Poppins", sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-td, th {
-  padding: 10px;
-  text-align: center;
-}
-
-.btn {
-  padding: 6px 10px;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.btn.danger {
-  background-color: #c0392b;
-  color: white;
-}
-
-.oculto {
-  display: none;
-}
-
-/* ===== Responsividade ===== */
-@media (max-width: 768px) {
-  table {
-    font-size: 14px;
-  }
-
-  td, th {
-    padding: 6px;
+  thead th, tbody td {
+    padding: 8px;
   }
 
   .btn {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  body {
-    padding: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
   }
 }
