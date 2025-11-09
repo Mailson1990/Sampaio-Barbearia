@@ -1,38 +1,40 @@
+// ==== 🔹 Conexão Firebase ====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// ==== 🔹 Configuração do Firebase ====
+const firebaseConfig = {
+  apiKey: "AIzaSyC5Ax2KcfpB4--rnLdBvdTgwE_GJgCCk0A",
+  authDomain: "sampaio-barbearia.firebaseapp.com",
+  projectId: "sampaio-barbearia",
+  storageBucket: "sampaio-barbearia.firebasestorage.app",
+  messagingSenderId: "984419102837",
+  appId: "1:984419102837:web:58e10be6f570f66438883c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
-  // === Seletores ===
   const btnAgendar = document.getElementById("btn-agendar");
   const modal = document.getElementById("modal");
   const fecharModal = document.getElementById("fechar-modal");
   const btnCancel = document.getElementById("btn-cancel");
   const form = document.getElementById("form-agendamento");
-  const responsavelSelect = document.getElementById("responsavel");
   const horaSelect = document.getElementById("hora");
   const dataInput = document.getElementById("data");
   const servicoSelect = document.getElementById("servico");
+  const responsavelSelect = document.getElementById("responsavel");
 
-  // Checa se os elementos existem
-  if (!btnAgendar || !modal || !fecharModal || !btnCancel) {
-    console.error("Algum elemento do modal não foi encontrado no DOM. Verifique os IDs.");
-    return;
-  }
-
-  // === Modal ===
-  function abrirModal() {
-    modal.classList.add("ativo");
-  }
-
-  function fecharModalFunc() {
-    modal.classList.remove("ativo");
-  }
-
-  btnAgendar.addEventListener("click", abrirModal);
-  fecharModal.addEventListener("click", fecharModalFunc);
-  btnCancel.addEventListener("click", fecharModalFunc);
+  // === Abrir e fechar modal ===
+  btnAgendar.addEventListener("click", () => modal.classList.add("ativo"));
+  fecharModal.addEventListener("click", () => modal.classList.remove("ativo"));
+  btnCancel.addEventListener("click", () => modal.classList.remove("ativo"));
   window.addEventListener("click", (e) => {
-    if (e.target === modal) fecharModalFunc();
+    if (e.target === modal) modal.classList.remove("ativo");
   });
 
-  // === Durações dos serviços (minutos) ===
+  // === Durações dos serviços (em minutos) ===
   const duracoes = {
     "Barba": 30,
     "Alisamento": 20,
@@ -45,113 +47,123 @@ document.addEventListener("DOMContentLoaded", () => {
     "Sobrancelha": 5
   };
 
-  // === Gera horários minuto a minuto ===
+  // === Gera horários de minuto em minuto (09:00 até 18:00) ===
   function gerarHorarios() {
     const horarios = [];
     for (let h = 9; h <= 18; h++) {
       for (let m = 0; m < 60; m++) {
-        if (h === 18 && m > 0) break;
-        horarios.push(`${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}`);
+        if (h === 18 && m > 0) break; // termina exatamente às 18:00
+        const horaFormatada = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        horarios.push(horaFormatada);
       }
     }
     return horarios;
   }
 
-  // === Obter agendamentos ===
-  async function obterAgendamentos() {
-    const snapshot = await getDocs(collection(db, "agendamentos"));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // === Recuperar agendamentos ===
+  function obterAgendamentos() {
+    return JSON.parse(localStorage.getItem("agendamentos")) || [];
   }
 
   // === Atualizar horários disponíveis ===
-  async function atualizarHorarios() {
+  function atualizarHorarios() {
     horaSelect.innerHTML = "";
-    const servico = servicoSelect.value;
-    const responsavel = responsavelSelect.value;
-    const data = dataInput.value;
-    if (!servico || !responsavel || !data) return;
 
-    const duracaoServico = duracoes[servico];
-    if (!duracaoServico) return;
+    const servicoSelecionado = servicoSelect.value;
+    const responsavelSelecionado = responsavelSelect.value;
+    const dataSelecionada = dataInput.value;
+
+    if (!servicoSelecionado || !responsavelSelecionado || !dataSelecionada) return;
+
+    const duracao = duracoes[servicoSelecionado] || 0;
+    if (!duracao) return;
 
     const horarios = gerarHorarios();
-    const agendamentos = await obterAgendamentos();
+    const agendamentos = obterAgendamentos();
 
+    // Filtra os horários já ocupados para o mesmo responsável e data
     const ocupados = agendamentos
-      .filter(a => a.data === data && a.responsavel === responsavel)
-      .map(a => ({ hora: a.hora, duracao: Number(a.duracao) }));
+      .filter(a => a.data === dataSelecionada && a.responsavel === responsavelSelecionado)
+      .map(a => ({ hora: a.hora, duracao: parseInt(a.duracao) }));
 
-    const disponiveis = horarios.filter(h => {
-      const [hH, hM] = h.split(":").map(Number);
-      const inicio = hH * 60 + hM;
-      const fim = inicio + duracaoServico;
+    // Verifica disponibilidade
+    const disponiveis = horarios.filter(hora => {
+      const [h, m] = hora.split(":").map(Number);
+      const inicio = h * 60 + m;
+      const fim = inicio + duracao;
 
-      return !ocupados.some(o => {
-        const [oh, om] = o.hora.split(":").map(Number);
-        const inicioOcupado = oh * 60 + om;
-        const fimOcupado = inicioOcupado + o.duracao;
-        return (inicio < fimOcupado && fim > inicioOcupado);
+      return !ocupados.some(ag => {
+        const [ah, am] = ag.hora.split(":").map(Number);
+        const inicioAg = ah * 60 + am;
+        const fimAg = inicioAg + ag.duracao;
+        return (
+          (inicio >= inicioAg && inicio < fimAg) ||
+          (fim > inicioAg && fim <= fimAg)
+        );
       });
     });
 
-    // Bloquear horários anteriores se for hoje
-    const hoje = new Date();
-    const agora = hoje.getHours() * 60 + hoje.getMinutes();
-    const dataHoje = hoje.toISOString().split("T")[0];
-
-    disponiveis.forEach(h => {
-      const [hh, mm] = h.split(":").map(Number);
-      if (data !== dataHoje || (hh*60 + mm > agora)) {
-        const opt = document.createElement("option");
-        opt.value = h;
-        opt.textContent = h;
-        horaSelect.appendChild(opt);
-      }
-    });
-
-    if (!horaSelect.options.length) {
+    // Exibe na lista de horários
+    if (disponiveis.length === 0) {
       const opt = document.createElement("option");
       opt.textContent = "Sem horários disponíveis";
       opt.disabled = true;
       horaSelect.appendChild(opt);
+    } else {
+      disponiveis.forEach(hora => {
+        const opt = document.createElement("option");
+        opt.value = hora;
+        opt.textContent = hora;
+        horaSelect.appendChild(opt);
+      });
     }
   }
 
+  // Atualiza horários quando serviço, data ou responsável mudam
   servicoSelect.addEventListener("change", atualizarHorarios);
   responsavelSelect.addEventListener("change", atualizarHorarios);
   dataInput.addEventListener("change", atualizarHorarios);
 
-  // === Envio formulário ===
-  form.addEventListener("submit", async (e) => {
+  // === Salvar agendamento e enviar via WhatsApp ===
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const nome = form.querySelector("#nome").value.trim();
-    const telefone = form.querySelector("#telefone").value.trim();
+    const nome = document.getElementById("nome").value;
+    const telefone = document.getElementById("telefone").value;
     const servico = servicoSelect.value;
     const responsavel = responsavelSelect.value;
     const data = dataInput.value;
     const hora = horaSelect.value;
-    const duracaoServico = duracoes[servico];
+    const duracao = duracoes[servico] || 0;
 
-    if (!hora) { alert("Selecione um horário disponível."); return; }
-
-    const agendamento = { nome, telefone, servico, responsavel, data, hora, duracao: duracaoServico };
-
-    try {
-      await addDoc(collection(db, "agendamentos"), agendamento);
-      alert("✅ Agendamento salvo!");
-      fecharModalFunc();
-      form.reset();
-      horaSelect.innerHTML = "";
-    } catch (err) {
-      console.error(err);
-      alert("❌ Erro ao salvar agendamento.");
+    if (!hora) {
+      alert("Selecione um horário disponível.");
+      return;
     }
+
+    const agendamento = {
+      nome,
+      telefone,
+      servico,
+      duracao,
+      responsavel,
+      data,
+      hora,
+      criadoEm: new Date().toLocaleString("pt-BR")
+    };
+
+    const agendamentos = obterAgendamentos();
+    agendamentos.push(agendamento);
+    localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
 
     // Enviar WhatsApp
     const msg = `Olá! Gostaria de agendar um horário:%0A%0A👤 *Nome:* ${nome}%0A📞 *Telefone:* ${telefone}%0A💈 *Serviço:* ${servico}%0A💇‍♂️ *Responsável:* ${responsavel}%0A📅 *Data:* ${data}%0A🕒 *Hora:* ${hora}`;
     const link = `https://wa.me/5511933199127?text=${msg}`;
     window.open(link, "_blank");
+
+    alert("✅ Agendamento registrado com sucesso!");
+    form.reset();
+    horaSelect.innerHTML = "";
   });
 });
 
