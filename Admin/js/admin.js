@@ -12,7 +12,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyC5Ax2KcfpB4--rnLdBvdTgwE_GJgCCk0A",
   authDomain: "sampaio-barbearia.firebaseapp.com",
   projectId: "sampaio-barbearia",
-  storageBucket: "sampaio-barbearia.firebasestorage.app",
+  storageBucket: "sampaio-barbearia.appspot.com",
   messagingSenderId: "984419102837",
   appId: "1:984419102837:web:58e10be6f570f66438883c"
 };
