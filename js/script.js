@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Enviar WhatsApp
       const msg = `Olá! Gostaria de agendar um horário:%0A%0A👤 *Nome:* ${nome}%0A📞 *Telefone:* ${telefone}%0A💈 *Serviço:* ${servico}%0A💇‍♂️ *Responsável:* ${responsavel}%0A📅 *Data:* ${data}%0A🕒 *Hora:* ${hora}`;
-      const link = `https://wa.me/5511933199127?text=${msg}`;
+      const link = `https://wa.me/5511998680448?text=${msg}`;
       window.open(link, "_blank");
 
       alert("✅ Agendamento enviado com sucesso!");
